@@ -34,6 +34,7 @@
 /*
  *  ======== main_tirtos.c ========
  */
+#include <FS_Board.h>
 #include <stdint.h>
 
 /* POSIX Header files */
@@ -43,7 +44,6 @@
 #include <ti/sysbios/BIOS.h>
 
 /* Example/Board Header files */
-#include "OBC_Board.h"
 
 extern void *mainThread(void *arg0);
 extern void *wdgThread(void *arg0);

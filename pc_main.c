@@ -52,7 +52,10 @@
 #include <ti/devices/msp432p4xx/driverlib/uart.h>
 #include <ti/drivers/uart/UARTMSP432.h>
 
-#include "OBC_Board.h"
+#include <ti/sysbios/knl/Clock.h>
+
+#include <FS_Board.h>
+//#include "RED_Board.h"
 
 
 /*
@@ -62,6 +65,7 @@
 
 UART_Handle uart_dbg_bus;
 UART_Handle uart_pq9_bus;
+UART_Handle uart_pc_bus;
 
 void temp(UART_Handle handle, void *buf, size_t count) {
 
@@ -84,6 +88,18 @@ void uart_test() {
       uartParams.readEcho = UART_ECHO_OFF;
       uartParams.baudRate = 115200;
       uart_dbg_bus = UART_open(DBG, &uartParams);
+
+      UART_Params_init(&uartParams);
+      uartParams.writeMode = UART_MODE_BLOCKING;
+      uartParams.writeDataMode = UART_DATA_BINARY;
+
+      uartParams.readMode = UART_MODE_BLOCKING;
+      uartParams.readDataMode = UART_DATA_BINARY;
+      uartParams.readTimeout = 1;
+      uartParams.readReturnMode = UART_RETURN_FULL;
+      uartParams.readEcho = UART_ECHO_OFF;
+      uartParams.baudRate = 115200;
+      uart_pc_bus = UART_open(PC_, &uartParams);
 
 }
 
@@ -179,7 +195,7 @@ uint16_t buf_uart_hldlc_cnt = 0;
 uint8_t resp54[3];
 uint8_t res;
 
-unsigned char buf_rs[100];
+unsigned  char buf_rs[100];
 uint16_t buf_cnt = 0;
 
 bool ctrl_flag, strt_flag = false;
@@ -190,7 +206,17 @@ void pc_interface() {
 
   uint8_t tx_count, tx_size, tx_buf[255];
 
+  uint32_t res_t, time_now;
+  time_now = Clock_getTicks();
+
   while(1) {
+
+
+    res_t = Clock_getTicks();
+    if(res_t - time_now > 500) {
+       GPIO_toggle(BLINK_LED);
+       time_now = res_t;
+    }
 
     // PQ9 -> PC
     while(RingBuf_get(&object->ringBuffer, &buf_rs[buf_cnt]) != -1) {
@@ -200,13 +226,13 @@ void pc_interface() {
     if(buf_cnt > 0) {
       //sprintf(temp,"%02x ", buf_rs[buf_cnt]);
       //UART_write(uart_dbg_bus, temp, strlen(temp));
-      UART_write(uart_dbg_bus, buf_rs, buf_cnt);
+      UART_write(uart_pc_bus, buf_rs, buf_cnt);
       buf_cnt = 0;
     }
 
     // PC -> PQ9
     do {
-      res = UART_read(uart_dbg_bus, resp54, 1);
+      res = UART_read(uart_pc_bus, resp54, 1);
       if(res > 0) {
         if(resp54[0] == HLDLC_START_FLAG) {
           strt_flag = true;
