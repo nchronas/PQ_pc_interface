@@ -66,6 +66,7 @@
 UART_Handle uart_dbg_bus;
 UART_Handle uart_pq9_bus;
 UART_Handle uart_pc_bus;
+UART_Handle uart_inj_bus;
 
 void temp(UART_Handle handle, void *buf, size_t count) {
 
@@ -88,6 +89,18 @@ void uart_test() {
       uartParams.readEcho = UART_ECHO_OFF;
       uartParams.baudRate = 115200;
       uart_dbg_bus = UART_open(DBG, &uartParams);
+
+      UART_Params_init(&uartParams);
+      uartParams.writeMode = UART_MODE_BLOCKING;
+      uartParams.writeDataMode = UART_DATA_BINARY;
+
+      uartParams.readMode = UART_MODE_BLOCKING;
+      uartParams.readDataMode = UART_DATA_BINARY;
+      uartParams.readTimeout = 1;
+      uartParams.readReturnMode = UART_RETURN_FULL;
+      uartParams.readEcho = UART_ECHO_OFF;
+      uartParams.baudRate = 115200;
+      uart_inj_bus = UART_open(INJ, &uartParams);
 
       UART_Params_init(&uartParams);
       uartParams.writeMode = UART_MODE_BLOCKING;
@@ -200,6 +213,9 @@ uint16_t buf_cnt = 0;
 
 bool ctrl_flag, strt_flag = false;
 
+unsigned  char buf_inj[100];
+uint16_t inj_cnt = 0;
+
 void pc_interface() {
 
   UARTMSP432_Object *object = uart_pq9_bus->object;
@@ -234,9 +250,12 @@ void pc_interface() {
     do {
       res = UART_read(uart_pc_bus, resp54, 1);
       if(res > 0) {
+        buf_inj[inj_cnt] = resp54[0];
+        inj_cnt++;
         if(resp54[0] == HLDLC_START_FLAG) {
           strt_flag = true;
-
+          buf_inj[0] = resp54[0];
+          inj_cnt = 1;
         } else if(resp54[0] == HLDLC_CONTROL_FLAG) {
           ctrl_flag = true;
         } else if(strt_flag) {
@@ -262,9 +281,13 @@ void pc_interface() {
         } else if(tx_count > 0 && tx_count == tx_size - 1) {
           tx_buf[tx_count] = resp54[0];
           tx_count++;
-          GPIO_write(PQ9_EN, 1);
-          UART_writePolling(uart_pq9_bus, tx_buf, tx_count);
-          GPIO_write(PQ9_EN, 0);
+          if(tx_buf[0] < 127) {
+            GPIO_write(PQ9_EN, 1);
+            UART_writePolling(uart_pq9_bus, tx_buf, tx_count);
+            GPIO_write(PQ9_EN, 0);
+          } else {
+            UART_write(uart_inj_bus, buf_inj, inj_cnt);
+          }
         }
       }
     } while(res > 0);

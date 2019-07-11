@@ -3,41 +3,41 @@
 //
 // configure the device pins for different signals
 //
-// Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/ 
-// 
-// 
-//  Redistribution and use in source and binary forms, with or without 
-//  modification, are permitted provided that the following conditions 
+// Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
 //  are met:
 //
-//    Redistributions of source code must retain the above copyright 
+//    Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
 //
 //    Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the 
-//    documentation and/or other materials provided with the   
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the
 //    distribution.
 //
 //    Neither the name of Texas Instruments Incorporated nor the names of
 //    its contributors may be used to endorse or promote products derived
 //    from this software without specific prior written permission.
 //
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 //  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 //  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 //  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //*****************************************************************************
 
-// This file was automatically generated on 02/05/2018 at 17:26:43
-// by TI PinMux version 4.0.1511 
+// This file was automatically generated on 19/10/2018 at 14:42:21
+// by TI PinMux version 4.0.1526
 //
 //*****************************************************************************
 
@@ -62,7 +62,7 @@
 #include <ti/devices/msp432p4xx/driverlib/uart.h>
 #include <ti/devices/msp432p4xx/driverlib/wdt_a.h>
 
-#include "OBC_Board.h"
+#include "FS_Board.h"
 
 
 /*
@@ -132,10 +132,8 @@ void MSP_EXP432P401R_initGeneral(void)
  *       reduce memory usage.
  */
 GPIO_PinConfig gpioPinConfigs[] = {
-    GPIOMSP432_P1_0 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_HIGH,
     GPIOMSP432_P9_0 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_HIGH,
-    //GPIOMSP432_P10_0 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_HIGH, // Stef pc interface pin
-    GPIOMSP432_P4_0 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+    GPIOMSP432_P10_5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
 };
 
 /*
@@ -158,34 +156,6 @@ const GPIOMSP432_Config GPIOMSP432_config = {
     .intPriority = (~0)
 };
 /*
- *  =============================== I2C ===============================
- */
-#include <ti/drivers/I2C.h>
-#include <ti/drivers/i2c/I2CMSP432.h>
-
-I2CMSP432_Object i2cMSP432Objects[Board_I2CCOUNT];
-
-const I2CMSP432_HWAttrsV1 i2cMSP432HWAttrs[Board_I2CCOUNT] = {
-    {
-        .baseAddr = EUSCI_B0_BASE,
-        .intNum = INT_EUSCIB0,
-        .intPriority = (~0),
-        .clockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK,
-        .dataPin = I2CMSP432_P1_6_UCB0SDA,
-        .clkPin = I2CMSP432_P1_7_UCB0SCL,
-    },
-};
-
-const I2C_Config I2C_config[Board_I2CCOUNT] = {
-    {
-        .fxnTablePtr = &I2CMSP432_fxnTable,
-        .object = &i2cMSP432Objects[I2C_MON],
-        .hwAttrs = &i2cMSP432HWAttrs[I2C_MON]
-    },
-};
-
-const uint_least8_t I2C_count = Board_I2CCOUNT;
-/*
  *  =============================== Power ===============================
  */
 const PowerMSP432_ConfigV1 PowerMSP432_config = {
@@ -196,44 +166,43 @@ const PowerMSP432_ConfigV1 PowerMSP432_config = {
     .enablePerf = true,
     .enableParking = true
 };
-
 /*
- *  =============================== SPI ===============================
+ *  =============================== Timer ===============================
  */
-#include <ti/drivers/SPI.h>
-#include <ti/drivers/spi/SPIMSP432DMA.h>
+#include <ti/drivers/Timer.h>
+#include <ti/drivers/timer/TimerMSP432.h>
 
-/* SPI objects */
-SPIMSP432DMA_Object spiMSP432DMAObjects[Board_SPICOUNT];
+TimerMSP432_Object timerMSP432Objects[Board_TIMERCOUNT];
 
-/* SPI configuration structure */
-const SPIMSP432DMA_HWAttrsV1 spiMSP432DMAHWAttrs[Board_SPICOUNT] = {
+const TimerMSP432_HWAttrs timerMSP432HWAttrs[Board_TIMERCOUNT] = {
     {
-        .baseAddr = EUSCI_B3_BASE,
-        .bitOrder = EUSCI_B_SPI_LSB_FIRST,
-        .clockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK,
-        .defaultTxBufValue = 0,
-        .dmaIntNum = INT_DMA_INT1,
-        .intPriority = (~0),
-        .rxDMAChannelIndex = DMA_CH7_EUSCIB3RX0,
-        .txDMAChannelIndex = DMA_CH6_EUSCIB3TX0,
-        .clkPin = SPIMSP432DMA_P10_1_UCB3CLK,
-        .simoPin = SPIMSP432DMA_P10_2_UCB3SIMO,
-        .somiPin = SPIMSP432DMA_P10_3_UCB3SOMI,
-        //.stePin = SPIMSP432DMA_P__,
-        .pinMode = EUSCI_SPI_3PIN
+        .timerBaseAddress = TIMER_A1_BASE,
+        .clockSource = TIMER_A_CLOCKSOURCE_SMCLK,
+        .intNum = INT_TA1_0,
+        .intPriority = ~0
+    },
+    {
+        .timerBaseAddress = TIMER_A0_BASE,
+        .clockSource = TIMER_A_CLOCKSOURCE_SMCLK,
+        .intNum = INT_TA0_0,
+        .intPriority = ~0
     },
 };
 
-const SPI_Config SPI_config[Board_SPICOUNT] = {
+const Timer_Config Timer_config[Board_TIMERCOUNT] = {
     {
-        .fxnTablePtr = &SPIMSP432DMA_fxnTable,
-        .object = &spiMSP432DMAObjects[FRAM],
-        .hwAttrs = &spiMSP432DMAHWAttrs[FRAM]
+        .fxnTablePtr = &TimerMSP432_Timer_A_fxnTable,
+        .object = &timerMSP432Objects[PQ9_TX_TIM],
+        .hwAttrs = &timerMSP432HWAttrs[PQ9_TX_TIM]
+    },
+    {
+        .fxnTablePtr = &TimerMSP432_Timer_A_fxnTable,
+        .object = &timerMSP432Objects[PQ9_RX_TIM],
+        .hwAttrs = &timerMSP432HWAttrs[PQ9_RX_TIM]
     },
 };
 
-const uint_least8_t SPI_count = Board_SPICOUNT;
+const uint_least8_t Timer_count = Board_TIMERCOUNT;
 
 /*
  *  =============================== UART ===============================
@@ -242,7 +211,7 @@ const uint_least8_t SPI_count = Board_SPICOUNT;
 #include <ti/drivers/uart/UARTMSP432.h>
 
 UARTMSP432_Object uartMSP432Objects[Board_UARTCOUNT];
-unsigned char uartMSP432RingBuffer[Board_UARTCOUNT][500];
+unsigned char uartMSP432RingBuffer[Board_UARTCOUNT][32];
 
 /*
  * The baudrate dividers were determined by using the MSP432 baudrate
@@ -259,7 +228,6 @@ const UARTMSP432_BaudrateConfig uartMSP432Baudrates[] = {
         .hwRegUCBRSx = 32,
         .oversampling = 1
     },
-    {500000, 12000000,  1,  8,   0, 1},
     {115200, 6000000,   3,  4,   2, 1},
     {115200, 3000000,   1, 10,   0, 1},
     {9600,   12000000, 78,  2,   0, 1},
@@ -298,6 +266,34 @@ const UARTMSP432_HWAttrsV1 uartMSP432HWAttrs[Board_UARTCOUNT] = {
         .rxPin = UARTMSP432_P1_2_UCA0RXD,
         .txPin = UARTMSP432_P1_3_UCA0TXD,
     },
+    {
+        .baseAddr = EUSCI_A1_BASE,
+        .intNum = INT_EUSCIA1,
+        .intPriority = (~0),
+        .clockSource = EUSCI_A_UART_CLOCKSOURCE_SMCLK,
+        .bitOrder = EUSCI_A_UART_LSB_FIRST,
+        .numBaudrateEntries = sizeof(uartMSP432Baudrates) /
+            sizeof(UARTMSP432_BaudrateConfig),
+        .baudrateLUT = uartMSP432Baudrates,
+        .ringBufPtr  = uartMSP432RingBuffer[PC_],
+        .ringBufSize = sizeof(uartMSP432RingBuffer[PC_]),
+        .rxPin = UARTMSP432_P2_2_UCA1RXD,
+        .txPin = UARTMSP432_P2_3_UCA1TXD,
+    },
+    {
+        .baseAddr = EUSCI_A2_BASE,
+        .intNum = INT_EUSCIA2,
+        .intPriority = (~0),
+        .clockSource = EUSCI_A_UART_CLOCKSOURCE_SMCLK,
+        .bitOrder = EUSCI_A_UART_LSB_FIRST,
+        .numBaudrateEntries = sizeof(uartMSP432Baudrates) /
+            sizeof(UARTMSP432_BaudrateConfig),
+        .baudrateLUT = uartMSP432Baudrates,
+        .ringBufPtr  = uartMSP432RingBuffer[INJ],
+        .ringBufSize = sizeof(uartMSP432RingBuffer[INJ]),
+        .rxPin = UARTMSP432_P2_1_UCA2RXD,
+        .txPin = UARTMSP432_P2_0_UCA2TXD,
+    },
 };
 
 const UART_Config UART_config[Board_UARTCOUNT] = {
@@ -311,6 +307,44 @@ const UART_Config UART_config[Board_UARTCOUNT] = {
         .object = &uartMSP432Objects[DBG],
         .hwAttrs = &uartMSP432HWAttrs[DBG]
     },
+    {
+        .fxnTablePtr = &UARTMSP432_fxnTable,
+        .object = &uartMSP432Objects[PC_],
+        .hwAttrs = &uartMSP432HWAttrs[PC_]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432_fxnTable,
+        .object = &uartMSP432Objects[INJ],
+        .hwAttrs = &uartMSP432HWAttrs[INJ]
+    },
 };
 
 const uint_least8_t UART_count = Board_UARTCOUNT;
+
+/*
+ *  =============================== Watchdog ===============================
+ */
+#include <ti/drivers/Watchdog.h>
+#include <ti/drivers/watchdog/WatchdogMSP432.h>
+
+WatchdogMSP432_Object watchdogMSP432Objects[Board_WATCHDOGCOUNT];
+
+const WatchdogMSP432_HWAttrs watchdogMSP432HWAttrs[Board_WATCHDOGCOUNT] = {
+    {
+        .baseAddr = WDT_A_BASE,
+        .intNum = INT_WDT_A,
+        .intPriority = (~0),
+        .clockSource = WDT_A_CLOCKSOURCE_SMCLK,
+        .clockDivider = WDT_A_CLOCKDIVIDER_2G
+    },
+};
+
+const Watchdog_Config Watchdog_config[Board_WATCHDOGCOUNT] = {
+    {
+        .fxnTablePtr = &WatchdogMSP432_fxnTable,
+        .object = &watchdogMSP432Objects[INTWATCHDOG],
+        .hwAttrs = &watchdogMSP432HWAttrs[INTWATCHDOG]
+    },
+};
+
+const uint_least8_t Watchdog_count = Board_WATCHDOGCOUNT;
